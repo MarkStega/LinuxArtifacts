@@ -1,0 +1,88 @@
+﻿name: GithubActionsWIP
+
+on:
+  push:
+    branches: [ main ]
+
+  pull_request:
+    branches: [ main ]
+
+env:
+  projectLinuxArtifacts: 'LinuxArtifacts/LinuxArtifacts.csproj'
+
+jobs:
+
+############################################################################################################
+# Build on windows
+############################################################################################################
+  build-windows:
+    name: Build on windows
+    runs-on: windows-latest
+
+    steps:
+
+    - name: Checkout repository under $GITHUB_WORKSPACE so the job can access it 🛎️
+      uses: actions/checkout@v4
+
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.x'
+
+    - name: Build projectLinuxArtifacts 🔧
+      run: >
+        dotnet build ${{env.projectLinuxArtifacts}}
+        --configuration Server
+        -p:Version=1.0.0-preview.1
+        --framework net8.0
+
+    - name: List .artifacts\bin content 🔧
+      run: dir .artifacts\bin /s
+      shell: cmd
+
+    - name: Run projectLinuxArtifacts 🔧
+      run: |
+          cd ".artifacts/bin/LinuxArtifacts/server_net8.0/"
+          LinuxArtifacts.exe
+      shell: cmd
+
+
+
+
+
+############################################################################################################
+# Build linux
+############################################################################################################
+  build-linux:
+    name: Build on linux
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout repository under $GITHUB_WORKSPACE so the job can access it 🛎️
+      uses: actions/checkout@v4
+
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.x'
+
+    - name: Build projectLinuxArtifacts 🔧
+      run: >
+        dotnet build ${{env.projectLinuxArtifacts}}
+        --configuration Server
+        -p:Version=1.0.0-preview.1
+        --framework net8.0
+
+    - name: List artifacts/bin content 🔧
+      run: ls -a -R .artifacts/bin
+
+    - name: Run projectLinuxArtifacts 🔧
+      run: |
+          cd ".artifacts/bin/LinuxArtifacts/server_net8.0/"
+          ./LinuxArtifacts
+
+
+
+
+
